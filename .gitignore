@@ -6,6 +6,7 @@ Angular/dist/
 # Go
 Go/bin/
 Go/*.exe
+.env
 
 # IDEs
 .vscode/
