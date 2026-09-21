@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -271,6 +272,46 @@ import { RouterLink } from '@angular/router';
 
         <span class="ver">v2.0.0-stable</span>
       </div>
+
+      
+
+    <!-- TRANSICION -->
+    @if (transitioning()) {
+      <div class="trans-overlay">
+        <div class="trans-shield">
+          <svg viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="tG" x1="0" y1="0" x2="240" y2="240" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#DD0031"/>
+                <stop offset="30%" stop-color="#c02070"/>
+                <stop offset="60%" stop-color="#7040b0"/>
+                <stop offset="100%" stop-color="#1793D1"/>
+              </linearGradient>
+              <filter id="tGlow">
+                <feGaussianBlur stdDeviation="6" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <path d="M120 16 L210 56 L210 140 Q210 200 120 228 Q30 200 30 140 L30 56 Z"
+                  fill="none" stroke="url(#tG)" stroke-width="4" filter="url(#tGlow)"/>
+            <path d="M120 16 L210 56 L210 140 Q210 200 120 228 Q30 200 30 140 L30 56 Z"
+                  fill="#060608" opacity="0.8"/>
+            <path d="M120 42 L78 170 L92 170 L120 68 L120 42 Z"
+                  fill="#DD0031" opacity="0.9" filter="url(#tGlow)"/>
+            <path d="M120 42 L162 170 L148 170 L120 68 L120 42 Z"
+                  fill="#1793D1" opacity="0.9" filter="url(#tGlow)"/>
+            <path d="M120 80 L100 155 L110 155 L120 100 L130 155 L140 155 Z"
+                  fill="#060608" opacity="0.95"/>
+            <rect x="96" y="130" width="48" height="4" rx="2" fill="url(#tG)" opacity="0.7"/>
+          </svg>
+        </div>
+        <div class="trans-scan"></div>
+        <div class="trans-user">Acceso autorizado: {{ username }}</div>
+        <div class="trans-bar-wrap">
+          <div class="trans-bar"></div>
+        </div>
+      </div>
+    }
     </div>
   `,
   styles: [`
@@ -964,6 +1005,116 @@ import { RouterLink } from '@angular/router';
       .icon-stage { width: 140px; height: 140px; }
       .form-head h2 { font-size: 22px; }
     }
+
+        .field-err {
+      display:flex; align-items:center; gap:6px;
+      margin-top:6px; padding:6px 10px;
+      background:rgba(221,0,49,0.06);
+      border-left:2px solid #DD0031;
+      border-radius:0 6px 6px 0;
+      font-family:'JetBrains Mono',monospace;
+      font-size:10px; color:#DD0031;
+      letter-spacing:0.3px;
+      animation:fadeMsg 0.3s ease;
+    }
+
+    .field-err-general {
+      margin-top:12px;
+      justify-content:center;
+      border-left:none;
+      border:1px solid rgba(221,0,49,0.12);
+      border-radius:8px;
+      padding:10px 14px;
+      font-size:11px;
+    }
+        /* ═══ TRANSICION ═══ */
+    .trans-overlay {
+      position: fixed; inset: 0; z-index: 9000;
+      background: #060608;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 24px;
+      animation: transIn 0.4s ease forwards;
+    }
+
+    @keyframes transIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .trans-shield {
+      width: 120px; height: 120px;
+      animation: transShield 1.8s cubic-bezier(0.16,1,0.3,1) forwards;
+      opacity: 0;
+    }
+
+    .trans-shield svg {
+      width: 100%; height: 100%;
+      filter:
+        drop-shadow(0 0 30px rgba(221,0,49,0.3))
+        drop-shadow(0 0 30px rgba(23,147,209,0.2));
+    }
+
+    @keyframes transShield {
+      0% { opacity: 0; transform: scale(0.3) rotate(-30deg); }
+      40% { opacity: 1; transform: scale(1.2) rotate(5deg); }
+      60% { transform: scale(1) rotate(0deg); }
+      80% { transform: scale(1.05); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .trans-scan {
+      position: absolute; left: 0; width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, #DD0031, #a040b0, #1793D1, transparent);
+      box-shadow:
+        0 0 20px rgba(221,0,49,0.4),
+        0 0 40px rgba(23,147,209,0.2);
+      animation: transScan 1.2s ease-in-out 0.6s forwards;
+      opacity: 0;
+    }
+
+    @keyframes transScan {
+      0% { top: 0%; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    .trans-user {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #28c840;
+      opacity: 0;
+      animation: transText 0.6s ease 1s forwards;
+    }
+
+    @keyframes transText {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .trans-bar-wrap {
+      width: 200px; height: 3px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 2px;
+      overflow: hidden;
+      opacity: 0;
+      animation: transText 0.4s ease 0.8s forwards;
+    }
+
+    .trans-bar {
+      height: 100%; width: 0%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #DD0031, #a040b0, #1793D1, #28c840);
+      animation: transBar 1.5s ease 0.8s forwards;
+    }
+
+    @keyframes transBar {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
   `]
 })
 export class LoginComponent {
@@ -972,13 +1123,72 @@ export class LoginComponent {
   remember = false;
   showPwd = signal(false);
   loading = signal(false);
+  transitioning = signal(false);
+
+  errUsername = signal('');
+  errPassword = signal('');
+  errGeneral = signal('');
+
+  constructor(
+    private router: Router,
+    private http: HttpClient
+  ) {}
+
+  private clearErrors(): void {
+    this.errUsername.set('');
+    this.errPassword.set('');
+    this.errGeneral.set('');
+  }
 
   onLogin(): void {
     if (this.loading()) return;
+    this.clearErrors();
+
+    let valid = true;
+
+    if (this.username.trim().length === 0) {
+      this.errUsername.set('El usuario o email es requerido');
+      valid = false;
+    }
+
+    if (this.password.length === 0) {
+      this.errPassword.set('La contrase\u00f1a es requerida');
+      valid = false;
+    }
+
+    if (!valid) return;
+
     this.loading.set(true);
-    setTimeout(() => {
-      this.loading.set(false);
-      console.log('Login:', { user: this.username, remember: this.remember });
-    }, 2000);
+
+    this.http.post<any>('http://localhost:8080/api/auth/login', {
+      usernameOrEmail: this.username.trim(),
+      password: this.password
+    }).subscribe({
+      next: (res) => {
+        this.loading.set(false);
+
+        // Guardar sesion
+        localStorage.setItem('user', JSON.stringify({
+          userId: res.userId,
+          username: res.username,
+          email: res.email,
+          role: res.role,
+          profileImage: res.profileImage
+        }));
+
+        // Mostrar transicion
+        this.transitioning.set(true);
+
+        // Navegar despues de la animacion
+        setTimeout(() => {
+          this.router.navigate(['/desktop']);
+        }, 2500);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        const msg = err.error?.error || 'Error al iniciar sesion';
+        this.errGeneral.set(msg);
+      }
+    });
   }
 }

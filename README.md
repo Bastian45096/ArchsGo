@@ -1,63 +1,77 @@
-# ArchsGo
-
+ArchsGo
 Plataforma web que simula la interfaz y el funcionamiento de un sistema operativo, implementada mediante una arquitectura de microservicios.
 
-## 🏗️ Arquitectura
-
+🏗️ Arquitectura
 El proyecto sigue un modelo distribuido donde el core y la lógica de negocio residen en el backend, y la interfaz de usuario se encarga de la simulación visual del sistema operativo.
 
-### Backend (Go)
-El backend está desarrollado en **Go** utilizando un espacio de trabajo (`go.work`) para gestionar múltiples módulos. Se aplica la **Clean Architecture** (Domain, Application, Infrastructure, Interfaces) en cada servicio.
+Backend (Go)
+El backend está desarrollado en Go utilizando un espacio de trabajo (go.work) para gestionar múltiples módulos. Se aplica la Clean Architecture (Domain, Application, Infrastructure, Interfaces) en cada servicio.
 
-- **API Gateway**: Punto de entrada único para el frontend. Gestiona la autenticación, el enrutamiento de peticiones y la coordinación básica entre servicios.
-- **Service SO (Core)**: Microservicio encargado de la lógica central del sistema operativo simulado.
-- **Service Chat**: Microservicio dedicado a la gestión de comunicaciones y mensajería dentro del sistema.
-- **Database**: Capa de persistencia basada en SQL Server.
+API Gateway: Punto de entrada único para el frontend. Gestiona la autenticación, el enrutamiento de peticiones y la coordinación básica entre servicios.
+Service SO (Core): Microservicio encargado de la lógica central del sistema operativo simulado.
+Service Chat: Microservicio dedicado a la gestión de comunicaciones y mensajería dentro del sistema.
+Database: Capa de persistencia basada en SQL Server.
+GoNET (C# / ASP.NET Core)
+GoNET es la primera aplicación instalable dentro de ArchsGo: un chat en tiempo real estilo Discord, desarrollado como un microservicio independiente en C# con ASP.NET Core, comunicándose con el core de ArchsGo siguiendo el principio Database per Service.
 
-### Frontend (Angular)
-Desarrollado con **Angular 19**, se encarga de renderizar el escritorio virtual, la gestión de ventanas y la interacción del usuario con los microservicios del backend.
+Arquitectura: Clean Architecture + Domain-Driven Design (Domain, Application, Infrastructure, API).
+Autenticación: JWT con ASP.NET Core Identity (registro independiente + login federado vía vinculación con ArchsGo).
+Base de datos: Azure SQL Database (Serverless, free tier), totalmente independiente de la BD de ArchsGo.
+Intercomunicación: GoNET consume la API de ArchsGo mediante HttpClient (IHttpClientFactory) para validar credenciales al vincular cuentas — jamás consulta la base de datos de ArchsGo directamente.
+Infraestructura: Logging estructurado con Serilog, middleware de auditoría de peticiones, almacenamiento de avatares en wwwroot.
+Frontend (Angular)
+Desarrollado con Angular 19, se encarga de renderizar el escritorio virtual, la gestión de ventanas y la interacción del usuario con los microservicios del backend.
 
-## 🛠️ Stack Tecnológico
+🛠️ Stack Tecnológico
+Lenguajes:
+Go (Backend core)
+C# / .NET (Microservicio GoNET)
+TypeScript / HTML / CSS (Frontend)
+Frameworks:
+Angular 19 (Frontend)
+ASP.NET Core (GoNET)
+Gin (Go)
+Base de Datos:
+SQL Server
+Azure SQL Database (GoNET)
+Patrones de Diseño:
+Microservicios
+Clean Architecture
+Domain-Driven Design (DDD)
+API Gateway
+Database per Service
+CQRS + MediatR (GoNET)
 
-- **Lenguajes**: 
-  - Go (Backend)
-  - TypeScript / HTML / CSS (Frontend)
-- **Frameworks**: 
-  - Angular 19 (Frontend)
-- **Base de Datos**: 
-  - SQL Server
-- **Patrones de Diseño**: 
-  - Microservicios
-  - Clean Architecture
-  - API Gateway
-
-## 📂 Estructura del Proyecto
-
-```text
+📂 Estructura del Proyecto
 .
 ├── Angular/              # Frontend de la plataforma (simulador de SO)
 │   └── src/              # Código fuente de Angular
-└── Go/                   # Backend en Go
-    ├── api-gateway/      # Gateway de entrada y autenticación
-    ├── service-chat/     # Microservicio de Chat
-    ├── service-so/       # Microservicio Core del SO
-    └── database/         # Scripts de inicialización de base de datos
-```
+├── Go/                   # Backend en Go
+│   ├── api-gateway/      # Gateway de entrada y autenticación
+│   ├── service-chat/     # Microservicio de Chat
+│   ├── service-so/       # Microservicio Core del SO
+│   └── database/         # Scripts de inicialización de base de datos
+└── GoNET/                # Microservicio GoNET (chat en tiempo real)
+    ├── GoNET.API/              # Controladores y punto de entrada HTTP
+    ├── GoNET.Application/      # Casos de uso, servicios y DTOs (Clean Architecture)
+    ├── GoNET.Domain/           # Entidades y reglas de dominio
+    └── GoNET.Infrastructure/   # EF Core, Identity, repositorios, servicios externos
 
-## 🚀 Ejecución
-
-### Backend
+🚀 Ejecución
+Backend (Go)
 Para ejecutar los servicios de Go, se requiere tener instalado Go y configurado el workspace.
-```bash
 cd Go
 go run ./api-gateway/cmd/main.go
 # Ejecutar los demás servicios en terminales independientes
-```
 
-### Frontend
+GoNET (C#)
+Requiere .NET SDK y una instancia de SQL Server (local o Azure) configurada en appsettings.json.
+cd GoNET/GoNET.API
+dotnet run
+# API disponible en http://localhost:5124
+
+Frontend
 Para levantar la interfaz de usuario:
-```bash
 cd Angular
 npm install
 npm start
-```

@@ -3,6 +3,8 @@ Angular/node_modules/
 Angular/.angular/
 Angular/dist/
 
+GoNET/GoNET.Infrastructure/Data/GoNetDbContext.cs.csproj
+GoNET/GoNET.API/appsettings.json
 # Go
 Go/bin/
 Go/*.exe

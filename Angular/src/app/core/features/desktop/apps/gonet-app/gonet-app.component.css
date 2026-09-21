@@ -1,0 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+:host { display:block; width:100%; height:100%; }
+
+.gonet-app {
+  width:100%; height:100%;
+  background:#08080e;
+  font-family:'Chakra Petch',sans-serif;
+  color:#dcdce4;
+  overflow:hidden;
+}

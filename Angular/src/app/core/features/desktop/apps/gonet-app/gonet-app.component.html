@@ -1,0 +1,42 @@
+<div class="gonet-app">
+
+    <app-login-view
+      *ngIf="view() === 'login'"
+      [error]="error()"
+      (switchView)="switchView($event)"
+      (errorChange)="error.set($event)"
+      (clearErrors)="clearErrors()"
+    />
+  
+    <app-register-view
+      *ngIf="view() === 'register'"
+      [error]="error()"
+      [success]="success()"
+      (switchView)="switchView($event)"
+      (errorChange)="error.set($event)"
+      (successChange)="success.set($event)"
+      (clearErrors)="clearErrors()"
+      (register)="onRegister($event)"
+    />
+  
+    <app-link-view
+      *ngIf="view() === 'link'"
+      [error]="error()"
+      [success]="success()"
+      (switchView)="switchView($event)"
+      (errorChange)="error.set($event)"
+      (successChange)="success.set($event)"
+      (clearErrors)="clearErrors()"
+    />
+  
+    <app-loading-modal
+      *ngIf="showLoading()"
+      [progress]="progress()"
+      [progressMsgs]="progressMsgs()"
+      [loadingSuccess]="loadingSuccess()"
+      [loadingError]="loadingError()"
+      [elapsedTime]="elapsedTime()"
+      (closeModal)="closeLoadingModal()"
+    />
+  
+  </div>

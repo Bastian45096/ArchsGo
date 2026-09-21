@@ -1,0 +1,6 @@
+@GoNET.API_HostAddress = http://localhost:5124
+
+GET {{GoNET.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

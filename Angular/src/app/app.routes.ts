@@ -23,6 +23,13 @@ export const routes: Routes = [
     redirectTo: '/login',
     pathMatch: 'full'
   },
+
+  {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./core/features/desktop/apps/gonet-app/views/dashboard-view.component')
+        .then(m => m.DashboardViewComponent)
+  },
   {
     path: '**',
     redirectTo: '/login'

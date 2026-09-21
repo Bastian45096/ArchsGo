@@ -8,6 +8,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+func (UsersGo) TableName() string {
+	return "users_go"
+}
+
 // User es el Aggregate Root del dominio de usuarios.
 // Contiene la identidad y el comportamiento crítico del usuario.
 type UsersGo struct {

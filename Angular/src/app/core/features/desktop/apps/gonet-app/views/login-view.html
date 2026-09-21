@@ -1,0 +1,145 @@
+<div class="gn-page">
+    <div class="gn-split">
+  
+      <div class="gn-left">
+        <app-particle-canvas mode="nodes"></app-particle-canvas>
+        <div class="gn-login-orb login-orb-red"></div>
+        <div class="gn-login-orb login-orb-blue"></div>
+        <div class="gn-login-orb login-orb-pink"></div>
+        <div class="gn-orbit-system">
+          <div class="gn-orbit orbit-1"></div>
+          <div class="gn-orbit orbit-2"></div>
+          <div class="gn-orbit orbit-3"></div>
+        </div>
+        <div class="gn-left-center">
+          <div class="gn-logo-wrap">
+            <div class="gn-logo-glow"></div>
+            <!-- SVG LOGIN LOGO -->
+            <svg class="gn-logo" viewBox="0 0 80 80" fill="none">
+              <defs>
+                <linearGradient id="lgMain" x1="0" y1="0" x2="80" y2="80"
+                  gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#DD0031"/>
+                  <stop offset="100%" stop-color="#1793D1"/>
+                </linearGradient>
+                <linearGradient id="lgVert" x1="40" y1="6" x2="40" y2="74"
+                  gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#DD0031"/>
+                  <stop offset="40%" stop-color="#c02070"/>
+                  <stop offset="100%" stop-color="#1793D1"/>
+                </linearGradient>
+                <filter id="lgGlow">
+                  <feGaussianBlur stdDeviation="2" result="b"/>
+                  <feMerge><feMergeNode in="b"/>
+                  <feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+                <clipPath id="lgClip">
+                  <circle cx="40" cy="40" r="36"/>
+                </clipPath>
+              </defs>
+              <circle cx="40" cy="40" r="37" fill="#0a0a12"/>
+              <circle cx="40" cy="40" r="37" fill="none" stroke="#DD0031"
+                stroke-width="3" stroke-dasharray="46 28"
+                stroke-linecap="round" opacity="0.9">
+                <animateTransform attributeName="transform" type="rotate"
+                  values="0 40 40;360 40 40" dur="20s"
+                  repeatCount="indefinite"/>
+              </circle>
+              <circle cx="40" cy="40" r="37" fill="none" stroke="#DD0031"
+                stroke-width="3" stroke-dasharray="46 28"
+                stroke-dashoffset="-74" stroke-linecap="round" opacity="0.6">
+                <animateTransform attributeName="transform" type="rotate"
+                  values="0 40 40;-360 40 40" dur="25s"
+                  repeatCount="indefinite"/>
+              </circle>
+              <circle cx="40" cy="40" r="37" fill="none" stroke="#1793D1"
+                stroke-width="3" stroke-dasharray="46 28"
+                stroke-dashoffset="-148" stroke-linecap="round" opacity="0.9">
+                <animateTransform attributeName="transform" type="rotate"
+                  values="0 40 40;360 40 40" dur="15s"
+                  repeatCount="indefinite"/>
+              </circle>
+              <circle cx="40" cy="6" r="4" fill="#DD0031"
+                filter="url(#lgGlow)"/>
+              <circle cx="10" cy="60" r="4" fill="#DD0031" opacity="0.7"/>
+              <circle cx="70" cy="60" r="4" fill="#1793D1" opacity="0.7"/>
+              <g clip-path="url(#lgClip)">
+                <path d="M40 12 L64 64 L16 64 Z" fill="none"
+                  stroke="url(#lgVert)" stroke-width="2.5" opacity="0.8"/>
+                <path d="M40 24 L54 60 L26 60 Z"
+                  fill="url(#lgVert)" opacity="0.15"/>
+                <path d="M40 70 L40 12" stroke="url(#lgMain)"
+                  stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+                <path d="M32 30 L40 12 L48 30" stroke="#DD0031"
+                  stroke-width="2.5" stroke-linecap="round"
+                  stroke-linejoin="round" fill="none" opacity="0.9"
+                  filter="url(#lgGlow)"/>
+              </g>
+              <circle cx="40" cy="12" r="2" fill="#fff" opacity="0.3">
+                <animate attributeName="opacity"
+                  values="0.1;0.5;0.1" dur="3s" repeatCount="indefinite"/>
+              </circle>
+            </svg>
+          </div>
+          <h1 class="gn-left-title">
+            <span class="gn-t-red">Go</span><span class="gn-t-blue">NET</span>
+          </h1>
+          <p class="gn-left-sub">Chat en tiempo real</p>
+          <p class="gn-left-desc">
+            Comunicate con tu equipo de desarrollo en
+            tiempo real. Seguro, rapido y simple.
+          </p>
+          <div class="gn-status-dots">
+            <div class="gn-dot dot-red"></div>
+            <div class="gn-dot dot-pink"></div>
+            <div class="gn-dot dot-blue"></div>
+          </div>
+        </div>
+      </div>
+  
+      <div class="gn-right">
+        <div class="gn-right-inner">
+          <h2 class="gn-h2">Iniciar sesion</h2>
+          <p class="gn-sub">Accede a tu cuenta de GoNET</p>
+          <div class="gn-form">
+            <app-form-field
+              label="Email o usuario"
+              placeholder="usuario&#64;correo.com"
+              [model]="loginUser"
+              (modelChange)="loginUser = $event"
+              [spellcheck]="false"
+              [iconPath]="'<path d=&quot;M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2&quot;/><circle cx=&quot;12&quot; cy=&quot;7&quot; r=&quot;4&quot;/>'"
+            />
+            <app-form-field
+              label="Contrasena"
+              placeholder="Tu contrasena"
+              [type]="showPwd() ? 'text' : 'password'"
+              [model]="loginPass"
+              (modelChange)="loginPass = $event"
+              [iconPath]="'<rect x=&quot;3&quot; y=&quot;11&quot; width=&quot;18&quot; height=&quot;11&quot; rx=&quot;2&quot;/><path d=&quot;M7 11V7a5 5 0 0 1 10 0v4&quot;/>'"
+            />
+            <div class="gn-error" *ngIf="error">{{ error }}</div>
+            <button class="gn-btn gn-btn-primary" (click)="onLogin()">
+              Iniciar sesion
+            </button>
+          </div>
+          <div class="gn-divider">
+            <div class="gn-div-line"></div>
+            <span>o continua con</span>
+            <div class="gn-div-line"></div>
+          </div>
+          <div class="gn-actions">
+            <button class="gn-btn gn-btn-create"
+              (click)="clearErrors.emit(); switchView.emit('register')">
+              Crear cuenta nueva
+            </button>
+            <button class="gn-btn gn-btn-link"
+              (click)="clearErrors.emit(); switchView.emit('link')">
+              Vincular cuenta de ArchsGo
+            </button>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+  </div>

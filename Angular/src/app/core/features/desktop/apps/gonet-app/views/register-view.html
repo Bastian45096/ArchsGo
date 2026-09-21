@@ -1,0 +1,98 @@
+<div class="gn-page">
+    <div class="gn-split">
+  
+      <div class="gn-left">
+        <button class="gn-back-corner"
+          (click)="clearErrors.emit(); switchView.emit('login')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" width="16" height="16">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+          </svg>
+          Volver al login
+        </button>
+        <div class="gn-left-glow g1"></div>
+        <div class="gn-left-glow g2"></div>
+        <div class="gn-left-center">
+          <div class="gn-logo-wrap">
+            <div class="gn-logo-glow"></div>
+            <svg class="gn-logo" viewBox="0 0 100 100" fill="none">
+              <!-- ... SVG completo del registro ... -->
+            </svg>
+          </div>
+          <h1 class="gn-left-title">
+            <span class="gn-t-red">Go</span><span class="gn-t-blue">NET</span>
+          </h1>
+          <p class="gn-left-sub">Crea tu cuenta</p>
+          <p class="gn-left-desc">
+            Unete a la comunidad de GoNET y empieza
+            a comunicarte con tu equipo.
+          </p>
+        </div>
+      </div>
+  
+      <div class="gn-right">
+        <div class="gn-right-inner">
+          <h2 class="gn-h2">Crear cuenta</h2>
+          <p class="gn-sub">Crea tu cuenta independiente en GoNET</p>
+          <div class="gn-form">
+            <app-avatar-uploader
+              [preview]="regAvatarPreview"
+              (previewChange)="onRegAvatarPreview($event)"
+              (errorChange)="onAvatarError($event)"
+            />
+            <div class="gn-grid-2">
+              <app-form-field
+                label="Nombre de usuario"
+                placeholder="Tu usuario"
+                [model]="regUser"
+                (modelChange)="regUser = $event"
+                [spellcheck]="false"
+                [iconPath]="'<path d=&quot;M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2&quot;/><circle cx=&quot;12&quot; cy=&quot;7&quot; r=&quot;4&quot;/>'"
+              />
+              <app-form-field
+                label="Email"
+                type="email"
+                placeholder="tu&#64;correo.com"
+                [model]="regEmail"
+                (modelChange)="regEmail = $event"
+                [iconPath]="'<path d=&quot;M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z&quot;/><polyline points=&quot;22,6 12,13 2,6&quot;/>'"
+              />
+            </div>
+            <app-form-field
+              label="Nombre para mostrar"
+              placeholder="Como te van a ver los demas"
+              [model]="regDisplay"
+              (modelChange)="regDisplay = $event"
+              [iconPath]="'<path d=&quot;M12 20h9&quot;/><path d=&quot;M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z&quot;/>'"
+            />
+            <div class="gn-grid-2">
+              <app-form-field
+                label="Contrasena"
+                placeholder="Minimo 6 caracteres"
+                [type]="showPwd() ? 'text' : 'password'"
+                [model]="regPass"
+                (modelChange)="regPass = $event"
+                [iconPath]="'<rect x=&quot;3&quot; y=&quot;11&quot; width=&quot;18&quot; height=&quot;11&quot; rx=&quot;2&quot;/><path d=&quot;M7 11V7a5 5 0 0 1 10 0v4&quot;/>'"
+              />
+              <app-form-field
+                label="Confirmar contrasena"
+                placeholder="Repite la contrasena"
+                [type]="showPwd() ? 'text' : 'password'"
+                [model]="regPassConfirm"
+                (modelChange)="regPassConfirm = $event"
+                [iconPath]="'<rect x=&quot;3&quot; y=&quot;11&quot; width=&quot;18&quot; height=&quot;11&quot; rx=&quot;2&quot;/><path d=&quot;M7 11V7a5 5 0 0 1 10 0v4&quot;/>'"
+              />
+            </div>
+            <div class="gn-error" *ngIf="error">{{ error }}</div>
+            <div class="gn-success" *ngIf="success">{{ success }}</div>
+            <button class="gn-btn gn-btn-primary gn-btn-lg"
+              (click)="onRegister()">
+              Crear cuenta
+            </button>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+  </div>
