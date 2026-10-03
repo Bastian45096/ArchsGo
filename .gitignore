@@ -14,3 +14,11 @@ Go/*.exe
 .vscode/
 .idea/
 *.swp
+bin/
+obj/
+wwwroot/uploads/
+*.user
+*.suo
+*.dll
+*.exe
+*.pdb

@@ -114,27 +114,54 @@ public class ApiLoggingMiddleware
                 using var scope = context.RequestServices.CreateScope();
                 var repo = scope.ServiceProvider.GetRequiredService<IApiGoNetRepository>();
 
-                var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var userName = context.User.FindFirstValue(ClaimTypes.Name);
-                var userEmail = context.User.FindFirstValue(ClaimTypes.Email);
+                // ══════════════════════════════════════════════════════════
+                //  IDENTIDAD: Items (dejado por el controller) con fallback a claims
+                //
+                //  En register/login NO existe JWT — el controller deja los datos
+                //  del usuario resultante en HttpContext.Items via ApiLogEnricher.
+                //  En endpoints [Authorize], los claims son la fuente.
+                // ══════════════════════════════════════════════════════════
+                var userId = ResolveInt(context, ApiLogEnricher.KeyUsuarioId)
+                             ?? TryParseInt(context.User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var userName = ResolveString(context, ApiLogEnricher.KeyUsuarioNombre)
+                             ?? context.User.FindFirstValue(ClaimTypes.Name);
+                var userEmail = ResolveString(context, ApiLogEnricher.KeyUsuarioEmail)
+                             ?? context.User.FindFirstValue(ClaimTypes.Email);
+
                 var userRoles = context.User.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();
                 var userClaims = context.User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+
+                var rolesFromItems = ResolveString(context, ApiLogEnricher.KeyUsuarioRoles);
+                var notasFromItems = ResolveString(context, ApiLogEnricher.KeyNotas);
 
                 var endpoint = context.GetEndpoint();
                 var routeValues = context.GetRouteData()?.Values;
 
+                // ═══ EndpointTemplate: DisplayName si existe, sino armado desde route values ═══
+                var endpointTemplate = endpoint?.DisplayName;
+                if (string.IsNullOrEmpty(endpointTemplate) && routeValues?.Any() == true)
+                {
+                    var ctrl = routeValues["controller"]?.ToString();
+                    var act = routeValues["action"]?.ToString();
+                    if (!string.IsNullOrEmpty(ctrl))
+                        endpointTemplate = $"api/{ctrl}/{act}";
+                }
+
+                // ═══ Notas: combinamos lo que dejó el controller + contexto técnico ═══
+                var notas = BuildNotas(context, notasFromItems, stopwatch.ElapsedMilliseconds);
+
                 await repo.AddAsync(new ApiGoNet
                 {
                     TraceId = traceId,
-                    UsuarioId = userId != null ? int.Parse(userId) : null,
-                    UsuarioNombre = userName,
-                    UsuarioEmail = userEmail,
+                    UsuarioId = userId,
+                    UsuarioNombre = Truncate(userName, 100),
+                    UsuarioEmail = Truncate(userEmail, 200),
                     EstaAutenticado = context.User.Identity?.IsAuthenticated ?? false,
-                    UsuarioRoles = userRoles.Any() ? JsonSerializer.Serialize(userRoles) : null,
+                    UsuarioRoles = userRoles.Any() ? JsonSerializer.Serialize(userRoles) : rolesFromItems,
                     UsuarioClaims = userClaims.Any() ? JsonSerializer.Serialize(userClaims) : null,
                     MetodoHttp = method,
                     Endpoint = path,
-                    EndpointTemplate = endpoint?.DisplayName,
+                    EndpointTemplate = Truncate(endpointTemplate, 500),
                     ControllerNombre = routeValues?["controller"]?.ToString(),
                     ActionNombre = routeValues?["action"]?.ToString(),
                     QueryString = context.Request.QueryString.HasValue ? context.Request.QueryString.Value : null,
@@ -178,11 +205,51 @@ public class ApiLoggingMiddleware
                     ThreadId = threadId,
                     FechaCreacion = DateTime.UtcNow,
                     EsExitoso = statusCode is >= 200 and <= 299,
-                    EsExcepcion = statusCode == 500
+                    EsExcepcion = statusCode == 500,
+                    Notas = notas
                 });
             }
             catch { }
         }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  HELPERS para leer los Items dejados por el controller
+    // ══════════════════════════════════════════════════════════════
+    private static int? ResolveInt(HttpContext ctx, string key)
+    {
+        if (ctx.Items.TryGetValue(key, out var v) && v is int i) return i;
+        if (ctx.Items.TryGetValue(key, out var s) && int.TryParse(s?.ToString(), out var p)) return p;
+        return null;
+    }
+
+    private static string? ResolveString(HttpContext ctx, string key)
+    {
+        return ctx.Items.TryGetValue(key, out var v) ? v?.ToString() : null;
+    }
+
+    private static int? TryParseInt(string? value)
+        => int.TryParse(value, out var i) ? i : null;
+
+    private static string? BuildNotas(HttpContext ctx, string? notasController, long ms)
+    {
+        var partes = new List<string>();
+
+        if (!string.IsNullOrEmpty(notasController))
+            partes.Add(notasController);
+
+        // ─── Autenticación: 3 estados ───
+        if (ctx.User.Identity?.IsAuthenticated == true)
+            partes.Add("JWT valido");
+        else if (ctx.Items.ContainsKey(ApiLogEnricher.KeyUsuarioId))
+            partes.Add("Identificado post-login/registro (sin JWT al llegar)");   // ⬅️ NUEVO estado
+        else
+            partes.Add("Anonimo");   // ⬅️ ahora SOLO significa anónimo de verdad
+
+        if (ms > 5000)
+            partes.Add($"Latencia alta ({ms}ms) — posible cold start de BD");
+
+        return partes.Any() ? string.Join(" | ", partes) : null;
     }
 
     private static async Task<string> ReadAndMaskBody(HttpContext context)

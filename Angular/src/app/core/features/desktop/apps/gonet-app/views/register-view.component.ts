@@ -80,14 +80,14 @@ import { AvatarUploaderComponent } from '../shared/avatar-uploader.component';
               <app-form-field label="Nombre para mostrar" placeholder="Como te van a ver los demas" [model]="regDisplay" (modelChange)="regDisplay = $event"
                 [iconPath]="editIcon"/>
               <div class="gn-grid-2">
-                <app-form-field label="Contrasena" placeholder="Tu contrasena" [type]="showPwd() ? 'text' : 'password'" [model]="regPass" (modelChange)="regPass = $event"
+                <app-form-field label="Contrasena" placeholder="Tu contrasena" [type]="showPwd() ? 'text' : 'password'" [model]="regPass()" (modelChange)="regPass.set($event)"
                   [iconPath]="lockIcon"/>
-                <app-form-field label="Confirmar contrasena" placeholder="Repite la contrasena" [type]="showPwd() ? 'text' : 'password'" [model]="regPassConfirm" (modelChange)="regPassConfirm = $event"
+                <app-form-field label="Confirmar contrasena" placeholder="Repite la contrasena" [type]="showPwd() ? 'text' : 'password'" [model]="regPassConfirm()" (modelChange)="regPassConfirm.set($event)"
                   [iconPath]="lockIcon"/>
               </div>
 
-              <!-- ⬅️ NUEVO: barra de fortaleza + checklist de requisitos -->
-              <div class="gn-pwd-checker" *ngIf="regPass.length > 0">
+              <!-- Barra de fortaleza + checklist de requisitos (reactivo a cada tecla) -->
+              <div class="gn-pwd-checker" *ngIf="regPass().length > 0">
                 <div class="gn-pwd-bar-track">
                   <div class="gn-pwd-bar-fill" [style.width.%]="pwdStrength()" [class.strength-ok]="pwdStrength() === 100"></div>
                 </div>
@@ -158,7 +158,7 @@ import { AvatarUploaderComponent } from '../shared/avatar-uploader.component';
     @keyframes gnGrad { 0%,100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
     .gn-btn-primary:hover { box-shadow:0 8px 30px rgba(221,0,49,0.3), 0 0 40px rgba(23,147,209,0.1); transform:translateY(-2px); }
 
-    /* ═══ PASSWORD STRENGTH CHECKER (⬅️ NUEVO) ═══ */
+    /* ═══ PASSWORD STRENGTH CHECKER ═══ */
     .gn-pwd-checker {
       display:flex; flex-direction:column; gap:10px;
       padding:12px 14px;
@@ -232,8 +232,8 @@ export class RegisterViewComponent {
   regUser = '';
   regEmail = '';
   regDisplay = '';
-  regPass = '';
-  regPassConfirm = '';
+  regPass = signal('');           // ⬅️ CAMBIO: signal (antes propiedad plana — el computed no la rastreaba)
+  regPassConfirm = signal('');    // ⬅️ CAMBIO: signal
   regAvatarPreview = signal<string>('');
 
   userIcon = '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>';
@@ -245,12 +245,12 @@ export class RegisterViewComponent {
   onAvatarError(msg: string): void { this.errorChange.emit(msg); }
 
   // ══════════════════════════════════════════════════════════
-  //  PASSWORD STRENGTH CHECKER (⬅️ NUEVO)
+  //  PASSWORD STRENGTH CHECKER — ahora completamente reactivo
   // ══════════════════════════════════════════════════════════
 
-  // Estado de cada requisito — se recalcula automáticamente al escribir
+  // Lee la SIGNAL regPass() → Angular rastrea cada cambio y recalcula al instante
   pwdReqs = computed(() => {
-    const pass = this.regPass;
+    const pass = this.regPass();
     return {
       length:   pass.length >= 6,
       upper:    /[A-Z]/.test(pass),
@@ -274,23 +274,26 @@ export class RegisterViewComponent {
 
   onRegister(): void {
     this.clearErrors.emit();
+    const pass = this.regPass();           // ⬅️ CAMBIO: leer valor actual de la signal
+    const confirm = this.regPassConfirm(); // ⬅️ CAMBIO
+
     if (!this.regUser.trim()) { this.errorChange.emit('Ingresa un nombre de usuario'); return; }
     if (!this.regEmail.trim()) { this.errorChange.emit('Ingresa un email'); return; }
-    if (!this.regPass) { this.errorChange.emit('Ingresa una contrasena'); return; }
+    if (!pass) { this.errorChange.emit('Ingresa una contrasena'); return; }
 
-    // ⬅️ NUEVO: validación específica por requisito
+    // Validación específica por requisito
     const r = this.pwdReqs();
     if (!r.length)    { this.errorChange.emit('La contrasena debe tener al menos 6 caracteres'); return; }
     if (!r.upper)     { this.errorChange.emit('La contrasena debe incluir al menos una mayuscula'); return; }
     if (!r.number)    { this.errorChange.emit('La contrasena debe incluir al menos un numero'); return; }
     if (!r.specials)  { this.errorChange.emit('La contrasena debe incluir al menos dos caracteres especiales'); return; }
 
-    if (this.regPass !== this.regPassConfirm) { this.errorChange.emit('Las contrasenas no coinciden'); return; }
+    if (pass !== confirm) { this.errorChange.emit('Las contrasenas no coinciden'); return; }
     this.register.emit({
       username: this.regUser.trim(),
       email: this.regEmail.trim(),
       displayName: this.regDisplay.trim() || this.regUser.trim(),
-      password: this.regPass,
+      password: pass,
       avatarBase64: this.regAvatarPreview() || undefined
     });
   }
