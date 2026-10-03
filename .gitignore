@@ -16,9 +16,11 @@ Go/*.exe
 *.swp
 bin/
 obj/
-wwwroot/uploads/
 *.user
 *.suo
 *.dll
 *.exe
 *.pdb
+GoNET/GoNET.API/wwwroot/
+GoNET/GoNET.API/wwwroot/
+GoNET/GoNET.API/wwwroot/uploads/
